@@ -7,10 +7,25 @@ resource "aws_iam_group" "admins" {
   path = "/admins/"
 }
 
+resource "aws_iam_group" "engineering" {
+  name = "Engineering"
+  path = "/"
+}
+
+resource "aws_iam_group" "power_users" {
+  name = "PowerUsers"
+  path = "/"
+}
+
+resource "aws_iam_group" "read_only" {
+  name = "ReadOnly"
+  path = "/"
+}
 
 ###############################
 # Policies attached to Groups
 ###############################
+
 
 #
 # Admin Group
@@ -32,6 +47,15 @@ resource "aws_iam_group_policy_attachment" "admin-group-aws-billing-attach" {
 }
 
 
+#
+# Engineering Group
+#
+
+resource "aws_iam_group_policy_attachment" "engineering-group-aws-admin-attach" {
+  group      = aws_iam_group.engineering.name
+  policy_arn = aws_iam_policy.s3_engineering.arn
+}
+
 #########
 # Users
 #########
@@ -42,6 +66,15 @@ resource "aws_iam_user" "glen_jarvis" {
 
   tags = {
     "Type" = "User"
+    "Title" = "Senior Systems Engineer"
+  }
+}
+
+resource "aws_iam_user" "jane_doe" {
+  name = "jane.doe"
+  path = "/users/"
+
+  tags = {
     "Title" = "Senior Systems Engineer"
   }
 }
@@ -72,5 +105,15 @@ resource "aws_iam_group_membership" "group_members_admin" {
   ]
 
   group = aws_iam_group.admins.name
+}
+
+resource "aws_iam_group_membership" "group_members_engineering" {
+  name = "group-members-engineering"
+
+  users = [
+    aws_iam_user.jane_doe.name,
+  ]
+
+  group = aws_iam_group.engineering.name
 }
 
